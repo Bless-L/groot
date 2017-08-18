@@ -7,14 +7,17 @@ const fs = require('fs-extra')
 const initGroot = require('../lib/init.js')
 const createPage = require('../lib/page.js')
 const createComp = require('../lib/comp.js')
+const { findRootPath } = require('../lib/util/index.js')
 
 program
-  .description('初始化一个小程序项目')
+  .version('0.1.0')
+  .usage('[command] [options]')
+  .description('一个创建小程序项目的手脚架工具')
   .command('init [appName]')
   .alias('i')
   .action((appName) => {
     if(!appName) {
-      console.log(chalk.red(' 请输入你的项目名称~'))
+      console.log(chalk.red('  请输入你的项目名称~'))
       return program.help()
     }
     const processPath = process.cwd()
@@ -30,18 +33,17 @@ program
   })
 
 program
-  .description('新建一个小程序页面')
   .command('page [pageName]')
   .alias('p')
   .action((pageName) => {
     if(!pageName) {
-      console.log(chalk.red(' 请输入你新建的页面名称！'))
+      console.log(chalk.red('  请输入你新建的页面名称！'))
       return program.help()
     }
     const processPath = process.cwd()
     const appPath = findRootPath(processPath, 'app.wxss')
     if(!appPath){
-      console.log(chalk.red(` 请在项目内执行新建命令！`))
+      console.log(chalk.red('  请在项目内执行新建命令！'))
       process.exit(1)
     }
     const rootPath = path.join(appPath, './modules/pages')
@@ -49,32 +51,31 @@ program
   })
 
 program
-  .description('新建一个小程序组件')
   .command('comp [compName]')
   .alias('c')
   .action((compName) => {
     if(!compName) {
-      console.log(chalk.red(' 请输入你新建的组件名称！'))
+      console.log(chalk.red('  请输入你新建的组件名称！'))
       return program.help()
     }
     const processPath = process.cwd()
     const appPath = findRootPath(processPath, 'app.wxss')
     if(!appPath){
-      console.log(chalk.red(` 请在项目内执行新建命令！`))
+      console.log(chalk.red('  请在项目内执行新建命令！'))
       process.exit(1)
     }
     const rootPath = path.join(appPath, './modules/components')
     createComp(compName, rootPath)
   })
 
-function findRootPath(currPath, configFileName) {
-  if (currPath === path.join(currPath, '../')) {
-    return null
-  } else if (fs.pathExistsSync(path.join(currPath, configFileName))) {
-    return currPath
-  } else {
-    return findRootPath(path.join(currPath, '../'), configFileName)
-  }
-}
+program
+  .command('*')
+  .action(function () {
+    console.log(chalk.red('  没有该命令哟，请通过 groot -h 查看帮助！'));
+  });
 
 program.parse(process.argv)
+
+if (program.args.length === 0) {
+  return program.help()
+}
