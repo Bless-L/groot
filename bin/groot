@@ -1,0 +1,80 @@
+#! /usr/bin/env node
+
+const program = require('commander')
+const chalk = require('chalk')
+const path = require('path')
+const fs = require('fs-extra')
+const initGroot = require('../lib/init.js')
+const createPage = require('../lib/page.js')
+const createComp = require('../lib/comp.js')
+
+program
+  .description('初始化一个小程序项目')
+  .command('init [appName]')
+  .alias('i')
+  .action((appName) => {
+    if(!appName) {
+      console.log(chalk.red(' 请输入你的项目名称~'))
+      return program.help()
+    }
+    const processPath = process.cwd()
+    initGroot(appName, processPath)
+  })
+  .on('--help', () => {
+    console.log('')
+    console.log('    Examples:')
+    console.log('')
+    console.log('  $groot init appName')
+    console.log('  $groot page pageName')
+    console.log('  $groot comp compName')
+  })
+
+program
+  .description('新建一个小程序页面')
+  .command('page [pageName]')
+  .alias('p')
+  .action((pageName) => {
+    if(!pageName) {
+      console.log(chalk.red(' 请输入你新建的页面名称！'))
+      return program.help()
+    }
+    const processPath = process.cwd()
+    const appPath = findRootPath(processPath, 'app.wxss')
+    if(!appPath){
+      console.log(chalk.red(` 请在项目内执行新建命令！`))
+      process.exit(1)
+    }
+    const rootPath = path.join(appPath, './modules/pages')
+    createPage(pageName, rootPath)
+  })
+
+program
+  .description('新建一个小程序组件')
+  .command('comp [compName]')
+  .alias('c')
+  .action((compName) => {
+    if(!compName) {
+      console.log(chalk.red(' 请输入你新建的组件名称！'))
+      return program.help()
+    }
+    const processPath = process.cwd()
+    const appPath = findRootPath(processPath, 'app.wxss')
+    if(!appPath){
+      console.log(chalk.red(` 请在项目内执行新建命令！`))
+      process.exit(1)
+    }
+    const rootPath = path.join(appPath, './modules/components')
+    createComp(compName, rootPath)
+  })
+
+function findRootPath(currPath, configFileName) {
+  if (currPath === path.join(currPath, '../')) {
+    return null
+  } else if (fs.pathExistsSync(path.join(currPath, configFileName))) {
+    return currPath
+  } else {
+    return findRootPath(path.join(currPath, '../'), configFileName)
+  }
+}
+
+program.parse(process.argv)
