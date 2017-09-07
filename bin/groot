@@ -7,6 +7,7 @@ const fs = require('fs-extra')
 const initGroot = require('../lib/init.js')
 const createPage = require('../lib/page.js')
 const createComp = require('../lib/comp.js')
+const watchCss = require('../lib/watch.js')
 const { findRootPath } = require('../lib/util/index.js')
 
 program
@@ -66,6 +67,31 @@ program
     }
     const rootPath = path.join(appPath, './modules/components')
     createComp(compName, rootPath)
+  })
+
+program
+  .command('serve [appName]')
+  .alias('s')
+  .option('-p, --page [pageName]', '页面名称')
+  .option('-c, --comp [compName]', '组件名称')
+  .action((appName, option) => {
+    const processPath = process.cwd()
+    const appPath = findRootPath(processPath, 'gulpfile.js')
+    if(!appPath){
+      console.log(chalk.red('  请在项目内执行新建命令！'))
+      process.exit(1)
+    }
+    let argPath
+    const pageName = option.page
+    const compName = option.comp
+    if (pageName) {
+      argPath = path.join(appPath, `./modules/pages/${pageName}`)
+    } else if (compName){
+      argPath = path.join(appPath, `./modules/components/${compName}`)
+    } else {
+      argPath = appPath
+    }
+    watchCss(argPath)
   })
 
 program
