@@ -76,7 +76,7 @@ program
   .option('-c, --comp [compName]', '组件名称')
   .action((appName, option) => {
     const processPath = process.cwd()
-    const appPath = findRootPath(processPath, 'gulpfile.js')
+    const appPath = findRootPath(processPath, 'app.wxss')
     if(!appPath){
       console.log(chalk.red('  请在项目内执行新建命令！'))
       process.exit(1)
@@ -91,7 +91,11 @@ program
     } else {
       argPath = appPath
     }
-    watchCss(argPath)
+    if (!fs.pathExistsSync(argPath)) {
+      console.log(chalk.red('  找不到该页面/组件！'))
+    } else {
+      watchCss(argPath)
+    }
   })
 
 program
