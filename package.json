@@ -1,6 +1,6 @@
 {
   "name": "Groot",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "创建小程序的一个脚手架工具",
   "main": "index.js",
   "bin": {
